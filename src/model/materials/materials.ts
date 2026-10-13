@@ -52,10 +52,9 @@ let cached: HouseMaterials | null = null;
 
 export function getMaterials(): HouseMaterials {
   if (cached) return cached;
-  const t0 = performance.now();
   const wood = createWoodMaps();
   const end = createEndGrainMaps();
-  if (import.meta.env.DEV) console.info('[perf] Holztexturen', Math.round(performance.now() - t0), 'ms');
+
   cached = {
     walls: new WoodSet(wood, end),
     door: new WoodSet(wood, end),

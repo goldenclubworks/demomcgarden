@@ -59,7 +59,11 @@ export const useStore = create<UiState>((set) => ({
   view: 'orbit',
   preset: 'hero',
   time: 'day',
-  quality: 'high',
+  quality: ((): Quality => {
+    if (typeof window === 'undefined') return 'high';
+    const q = new URLSearchParams(location.search).get('q');
+    return q === 'low' || q === 'medium' || q === 'high' ? q : 'high';
+  })(),
   doorOpen: 0,
   assembly: 1,
   assemblyPlaying: false,

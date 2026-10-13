@@ -91,6 +91,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .total span { font-size: 13px; color: var(--muted); }
 .total b { font-size: 24px; font-variant-numeric: tabular-nums; }
 
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; margin: 0; font-size: 13px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; text-align: right; }
+.cta { width: 100%; margin-top: 14px; padding: 13px 16px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 15px; }
+.cta:hover { filter: brightness(1.06); }
+
 .dim-label { font-size: 12px; font-weight: 600; color: #261c0c; background: #ffd37a; padding: 3px 8px; border-radius: 6px; white-space: nowrap; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35); font-variant-numeric: tabular-nums; }
 
 .loader { position: absolute; inset: 0; background: var(--bg); display: grid; place-content: center; justify-items: center; gap: 18px; color: var(--muted); font-size: 14px; transition: opacity .8s ease, visibility .8s; z-index: 50; }

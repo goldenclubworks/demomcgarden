@@ -9,7 +9,9 @@ import { configOf, priceLines, useStore, type HouseConfig } from '@/data/store';
  */
 export function useEmbedBridge() {
   useEffect(() => {
-    const post = (msg: unknown) => window.parent !== window && window.parent.postMessage(msg, '*');
+    const post = (msg: unknown) => {
+      if (window.parent !== window) window.parent.postMessage(msg, '*');
+    };
     const send = () => {
       const c = configOf(useStore.getState());
       post({ type: 'mcgarden:configChanged', config: c, price: priceLines(c) });

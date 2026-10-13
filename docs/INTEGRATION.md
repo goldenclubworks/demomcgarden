@@ -19,6 +19,7 @@
 | --- | --- |
 | Demo → Shop | `{ type: 'mcgarden:ready' }` |
 | Demo → Shop | `{ type: 'mcgarden:configChanged', config, price }` bei jeder Änderung |
+| Demo → Shop | `{ type: 'mcgarden:addToCart', config, price }` (Klick auf „In den Warenkorb“) |
 | Shop → Demo | `{ type: 'mcgarden:setConfig', config: { finish: 'anthrazit', roof: 'epdm', ... } }` |
 
 `config` entspricht `HouseConfig` (`src/data/store.ts`), `price` enthält `lines[]`, `total`, `shipping`.

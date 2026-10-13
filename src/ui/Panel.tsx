@@ -1,6 +1,7 @@
 import { EXTRAS, FINISHES, PACKAGES, PRICE_DATE, ROOF_COVERS } from '@/data/catalog';
 import { configOf, priceLines, useStore } from '@/data/store';
 import { de } from '@/i18n/de';
+import { SPEC } from '@/model/spec';
 
 const eur = (v: number) => v.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
@@ -45,6 +46,11 @@ export function Panel() {
   const open = s.panel;
   const setOpen = (v: boolean) => s.set({ panel: v });
   const price = priceLines(configOf(s));
+  const addToCart = () => {
+    const c = configOf(s);
+    if (window.parent !== window) window.parent.postMessage({ type: 'mcgarden:addToCart', config: c, price }, '*');
+    s.set({ toast: 'Demo: Hier übernimmt der Shop-Warenkorb die Konfiguration' });
+  };
   const doorLabel = FINISHES.find((f) => f.id === (s.doorFinish === 'same' ? s.finish : s.doorFinish))?.label;
   return (
     <aside className={`panel${open ? '' : ' closed'}`} aria-label="Konfigurator">
@@ -92,6 +98,19 @@ export function Panel() {
           <Toggle on={s.mirrored} label={de.extras.mirrored} price="inklusive" onClick={() => s.set({ mirrored: !s.mirrored })} />
           <Toggle on={s.assemblyService} label={de.extras.assembly} price={eur(EXTRAS.assembly.price)} onClick={() => s.set({ assemblyService: !s.assemblyService })} />
         </section>
+        <section>
+          <h2>Technische Daten</h2>
+          <dl className="facts">
+            <dt>Außenmaß</dt><dd>{SPEC.outerX / 10} × {SPEC.outerZ / 10} cm</dd>
+            <dt>Innenmaß</dt><dd>373,2 × 273,2 cm</dd>
+            <dt>Nutzfläche</dt><dd>ca. 10,2 m²</dd>
+            <dt>Wandhöhe</dt><dd>vorn 224 cm · hinten 209 cm</dd>
+            <dt>Wandstärke</dt><dd>34 mm Blockbohle</dd>
+            <dt>Material</dt><dd>Nordische Fichte, kammergetrocknet, FSC</dd>
+            <dt>Dach</dt><dd>Pultdach, OSB-Dachplatte</dd>
+            <dt>Lieferung</dt><dd>1 Packstück, ca. 680 kg, ca. 2 Wochen</dd>
+          </dl>
+        </section>
         <section className="summary">
           <h2>{de.sections.summary}</h2>
           <ul>
@@ -106,6 +125,7 @@ export function Panel() {
             <span>{de.total}</span>
             <b>{eur(price.total)}</b>
           </div>
+          <button className="cta" onClick={addToCart}>In den Warenkorb</button>
           <p className="hint">
             {de.vat}, {de.shipping} {eur(price.shipping)}. {de.priceNote(PRICE_DATE)}
           </p>

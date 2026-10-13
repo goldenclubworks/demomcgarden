@@ -20,14 +20,26 @@ Integration in den Shop.
 - **AR im eigenen Garten**: GLB-Export zur Laufzeit → `<model-viewer>` (WebXR, Scene Viewer, Quick Look), QR-Code am Desktop
 - **Embed-Modus** für den Shop (iframe + `postMessage`), siehe [docs/INTEGRATION.md](docs/INTEGRATION.md)
 
+## URL-Parameter
+
+| Parameter | Wirkung |
+| --- | --- |
+| `?intro=0` | Intro-Animation (Aufbau + Kamerafahrt) überspringen |
+| `?embed=1` | Einbettungsmodus (ohne Marken-Kachel, ohne Intro) |
+| `?q=low\|medium\|high` | Grafikqualität festlegen (sonst automatisch) |
+| `?finish=anthrazit&doorFinish=weiss&roof=epdm&package=premium&gutter=1&floor=1&mirrored=1` | Konfiguration vorbelegen (der „Link“-Knopf erzeugt diese URL) |
+| `?ar=1` | öffnet direkt den AR-Dialog (Ziel des QR-Codes) |
+
 ## Entwicklung
 
 ```bash
 npm install
 npm run assets      # lädt die CC0-Assets (Poly Haven) nach public/ – bereits eingecheckt, nur zum Erneuern
-npm run dev         # http://localhost:5173
+npm run dev         # http://localhost:5173 (Standard-Port von Vite)
 npm test            # Maß-Invarianten (Geometrie + Preislogik)
 npm run build       # Typecheck + Produktions-Build nach dist/
+node scripts/shot.mjs out.png --panel 0   # Screenshot per Chrome (dev-Server muss laufen)
+node scripts/fps.mjs http://localhost:4173/?intro=0   # Ladezeit/FPS gegen `npm run preview`
 ```
 
 Node ≥ 20 (empfohlen 24). Die `.npmrc` setzt `legacy-peer-deps`, weil `@google/model-viewer` noch three 0.183 als Peer angibt.

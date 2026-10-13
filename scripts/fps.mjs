@@ -1,0 +1,20 @@
+import { chromium } from 'playwright-core';
+const url = process.argv[2] ?? 'http://localhost:4199/?intro=0';
+const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=metal'] });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+const errors = [];
+page.on('pageerror', (e) => errors.push(e.message));
+page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+const t0 = Date.now();
+await page.goto(url);
+await page.waitForSelector('.loader.done', { state: 'attached', timeout: 120000 });
+console.log('Ladezeit bis bereit:', Date.now() - t0, 'ms');
+await page.waitForTimeout(2000);
+const fps = await page.evaluate(() => new Promise((res) => {
+  let n = 0; const t = performance.now();
+  const tick = () => { n++; if (performance.now() - t < 3000) requestAnimationFrame(tick); else res(n / 3); };
+  requestAnimationFrame(tick);
+}));
+console.log('FPS (Idle, 1440×900):', fps.toFixed(1));
+console.log('Fehler:', errors.length ? errors : 'keine');
+await browser.close();
