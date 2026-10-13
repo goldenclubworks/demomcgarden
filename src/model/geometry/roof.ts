@@ -89,8 +89,9 @@ function trapezSheet(width: number, length: number, x0: number): THREE.BufferGeo
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setIndex(idx);
-  g.computeVertexNormals();
-  return g.toNonIndexed();
+  const flat = g.toNonIndexed(); // flache Normalen: Trapezprofil statt Welle
+  flat.computeVertexNormals();
+  return flat;
 }
 
 export function buildCover(id: RoofCoverId, aluTrim: boolean): RoofCover | null {

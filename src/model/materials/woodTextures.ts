@@ -64,13 +64,13 @@ export function createWoodMaps(): WoodMaps {
   const hgt = new Float32Array(W * H);
   const rgh = new Uint8ClampedArray(W * H * 4);
 
-  const ringCount = 11; // sichtbare Jahrringlinien auf 139,5 mm (leicht stilisiert, Moiré-sicher)
+  const ringCount = 9; // sichtbare Jahrringlinien auf 139,5 mm (leicht stilisiert, Moiré-sicher)
   for (let y = 0; y < H; y++) {
     const v = y / H;
     for (let x = 0; x < W; x++) {
       const u = x / W;
       // Jahrringe: Grundphase über v, verzerrt durch niederfrequentes Rauschen → „Fladerung“
-      let warp = (nLow(u * 6, v * 4) - 0.5) * 2.4 + (nMid(u * 24, v * 10) - 0.5) * 0.35;
+      let warp = (nLow(u * 6, v * 4) - 0.5) * 1.5 + (nMid(u * 24, v * 10) - 0.5) * 0.22;
       let knotDark = 0;
       for (const k of knots) {
         let du = Math.abs(u - k.u);
@@ -89,13 +89,14 @@ export function createWoodMaps(): WoodMaps {
       const ring = p < 0.6 ? 0 : Math.pow(Math.sin(((p - 0.6) / 0.4) * Math.PI), 1.6);
       const fibre = nHi(u * 256, v * 24) * 0.6 + nHi2(u * 512, v * 64) * 0.4;
       const tone = nTone(u * 3, v * 3);
-      let dark = ring * (0.26 + 0.12 * nMid(u * 3, v * 40)) + (fibre - 0.5) * 0.26 + (tone - 0.5) * 0.14 + 0.05;
+      const fine = Math.pow(Math.abs(Math.sin((v * 46 + warp * 5) * Math.PI)), 6) * 0.1;
+      let dark = ring * (0.2 + 0.1 * nMid(u * 3, v * 40)) + fine + (fibre - 0.5) * 0.24 + (tone - 0.5) * 0.14 + 0.04;
       dark += knotDark * 0.55;
       const i = (y * W + x) * 4;
 
       // Naturholz: helles, leicht gelbliches Fichtenholz
-      const r0 = 214, g0 = 180, b0 = 128;
-      const r1 = 148, g1 = 104, b1 = 60;
+      const r0 = 220, g0 = 188, b0 = 140;
+      const r1 = 150, g1 = 108, b1 = 66;
       const k = Math.min(1, Math.max(0, dark));
       col[i] = r0 + (r1 - r0) * k;
       col[i + 1] = g0 + (g1 - g0) * k;

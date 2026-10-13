@@ -31,13 +31,20 @@ export function assignWoodUV(geo: THREE.BufferGeometry, along: Axis, rand: () =>
   const flip = rand() < 0.5 ? -1 : 1;
   const p = [0, 0, 0];
   const n = [0, 0, 0];
+  const edge = new Uint8Array(pos.count);
   for (let i = 0; i < pos.count; i++) {
     p[0] = pos.getX(i); p[1] = pos.getY(i); p[2] = pos.getZ(i);
     n[0] = Math.abs(nor.getX(i)); n[1] = Math.abs(nor.getY(i)); n[2] = Math.abs(nor.getZ(i));
     let a: Axis = 0;
     if (n[1] > n[a]) a = 1;
     if (n[2] > n[a]) a = 2;
-    if (a === along) {
+    const others = ([0, 1, 2] as Axis[]).filter((k) => k !== along);
+    if (a !== along && n[others[0]] > 0.35 && n[others[1]] > 0.35) {
+      // Fase: schmale Fläche → feste Textur-Zeile + dunkler (Schattenfuge), sonst entsteht ein gestricheltes Muster
+      edge[i] = 1;
+      uv[i * 2] = flip * (p[along] / TEX_LEN_MM) + uOff;
+      uv[i * 2 + 1] = vOff;
+    } else if (a === along) {
       const o = ([0, 1, 2] as Axis[]).filter((k) => k !== along);
       uv[i * 2] = p[o[0]] / 100;
       uv[i * 2 + 1] = p[o[1]] / 100;
@@ -54,9 +61,10 @@ export function assignWoodUV(geo: THREE.BufferGeometry, along: Axis, rand: () =>
   const warm = (rand() - 0.5) * 2 * t * 0.6;
   const col = new Float32Array(pos.count * 3);
   for (let i = 0; i < pos.count; i++) {
-    col[i * 3] = b * (1 + warm);
-    col[i * 3 + 1] = b;
-    col[i * 3 + 2] = b * (1 - warm * 1.4);
+    const k = edge[i] ? 0.5 : 1;
+    col[i * 3] = b * (1 + warm) * k;
+    col[i * 3 + 1] = b * k;
+    col[i * 3 + 2] = b * (1 - warm * 1.4) * k;
   }
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
   return geo;

@@ -1,5 +1,7 @@
 import { useStore, type PresetId, type TimeOfDay } from '@/data/store';
 import { de } from '@/i18n/de';
+import { configOf } from '@/data/store';
+import { configUrl } from '@/lib/urlState';
 
 const VIEWS: PresetId[] = ['hero', 'front', 'side', 'back', 'top', 'interior'];
 const TIMES: TimeOfDay[] = ['day', 'golden', 'night'];
@@ -9,6 +11,26 @@ export function Toolbar() {
   const playAssembly = () => {
     if (s.assemblyPlaying) return s.set({ assemblyPlaying: false });
     s.set({ assembly: s.assembly >= 1 ? 0 : s.assembly, assemblyPlaying: true });
+  };
+  const photo = () => {
+    const c = document.querySelector('canvas');
+    c?.toBlob((b) => {
+      if (!b) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(b);
+      a.download = 'gartenhaus-bergen.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      s.set({ toast: 'Foto gespeichert' });
+    }, 'image/png');
+  };
+  const share = async () => {
+    try {
+      await navigator.clipboard.writeText(configUrl(configOf(s)));
+      s.set({ toast: 'Link zur Konfiguration kopiert' });
+    } catch {
+      s.set({ toast: 'Kopieren nicht möglich' });
+    }
   };
   return (
     <nav className="toolbar" aria-label="Ansicht">
@@ -36,6 +58,9 @@ export function Toolbar() {
         <input type="range" min={0} max={1000} value={Math.round(s.assembly * 1000)} aria-label="Aufbaufortschritt" onChange={(e) => s.set({ assembly: +e.target.value / 1000, assemblyPlaying: false })} />
       </div>
       <div className="group">
+        <button className={s.hotspots ? 'on' : ''} onClick={() => s.set({ hotspots: !s.hotspots })} aria-pressed={s.hotspots}>Details</button>
+        <button onClick={photo}>Foto</button>
+        <button onClick={share}>Link</button>
         <button className="accent" onClick={() => s.set({ arOpen: true })}>{de.tools.ar}</button>
       </div>
     </nav>

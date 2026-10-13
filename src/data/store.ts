@@ -32,6 +32,9 @@ export interface UiState extends HouseConfig {
   roofOff: boolean;
   panel: boolean;
   arOpen: boolean;
+  hotspots: boolean;
+  intro: boolean;
+  toast: string | null;
   ready: boolean;
   set: (p: Partial<UiState>) => void;
   applyPackage: (id: PackageId) => void;
@@ -64,6 +67,13 @@ export const useStore = create<UiState>((set) => ({
   roofOff: false,
   panel: typeof window === 'undefined' || window.innerWidth > 880,
   arOpen: false,
+  hotspots: false,
+  intro: (() => {
+    if (typeof window === 'undefined') return false;
+    const q = new URLSearchParams(location.search);
+    return q.get('intro') !== '0' && !q.has('embed') && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  })(),
+  toast: null,
   ready: false,
   set: (p) => set(p),
   applyPackage: (id) =>

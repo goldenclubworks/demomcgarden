@@ -7,6 +7,7 @@ import { ToneMappingMode } from 'postprocessing';
 import { House } from '@/model/House';
 import { Ground, Sky, SUN } from './Environment';
 import { Dimensions } from '@/features/Dimensions';
+import { Hotspots } from '@/features/Hotspots';
 import { useStore, type PresetId } from '@/data/store';
 import type CC from 'camera-controls';
 
@@ -21,6 +22,7 @@ export const CAMERA_PRESETS = {
 
 function Rig() {
   const ref = useRef<CC>(null);
+  const introDone = useRef(false);
   const preset = useStore((s) => s.preset);
   const view = useStore((s) => s.view);
   const { camera } = useThree();
@@ -37,7 +39,15 @@ function Rig() {
     c.minDistance = inside ? 0.01 : 2.5;
     c.maxDistance = inside ? 3.5 : 16;
     c.maxPolarAngle = inside ? Math.PI * 0.8 : Math.PI * 0.495;
-    c.setLookAt(pos[0], pos[1], pos[2], p.target[0], p.target[1], p.target[2], useStore.getState().ready);
+    const st = useStore.getState();
+    if (st.intro && preset === 'hero' && !introDone.current) {
+      introDone.current = true;
+      c.setLookAt(pos[0] - 4.2 * f, pos[1] + 2.4, pos[2] + 5.5 * f, p.target[0], p.target[1], p.target[2], false);
+      c.smoothTime = 2.2;
+      void c.setLookAt(pos[0], pos[1], pos[2], p.target[0], p.target[1], p.target[2], true).then(() => (c.smoothTime = 0.35));
+    } else {
+      c.setLookAt(pos[0], pos[1], pos[2], p.target[0], p.target[1], p.target[2], st.ready);
+    }
     (camera as THREE.PerspectiveCamera).fov = inside ? 70 : 34;
     camera.updateProjectionMatrix();
   }, [preset, camera, size.width, size.height]);
@@ -110,7 +120,7 @@ function Post() {
   }
   return (
     <EffectComposer multisampling={4} enableNormalPass={false}>
-      <N8AO aoRadius={0.45} distanceFalloff={0.8} intensity={q === 'high' ? 3.2 : 2} quality={q === 'high' ? 'high' : 'medium'} color="#2a1c10" />
+      <N8AO aoRadius={0.22} distanceFalloff={0.6} intensity={q === 'high' ? 2.6 : 1.8} quality={q === 'high' ? 'high' : 'medium'} color="#2a1c10" />
       <Bloom intensity={0.12} luminanceThreshold={1.1} luminanceSmoothing={0.4} mipmapBlur />
       <Vignette eskil={false} offset={0.28} darkness={0.5} />
       <ToneMapping mode={ToneMappingMode.NEUTRAL} />
@@ -152,6 +162,7 @@ export function Scene() {
         <Ground />
         <House />
         <Dimensions />
+        <Hotspots />
         <Post />
         <Ready />
       </Suspense>

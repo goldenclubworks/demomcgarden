@@ -110,6 +110,16 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .qr { display: grid; place-items: center; background: #fff; border-radius: 12px; padding: 12px; width: 168px; justify-self: center; }
 .qr svg { width: 100%; height: auto; display: block; }
 
+.spot { position: relative; }
+.spot-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; background: rgba(217, 178, 122, 0.9); box-shadow: 0 0 0 0 rgba(217, 178, 122, 0.7); animation: pulse 2.2s infinite; padding: 0; }
+.spot.open .spot-dot { animation: none; background: #fff; }
+@keyframes pulse { 70% { box-shadow: 0 0 0 14px rgba(217, 178, 122, 0); } 100% { box-shadow: 0 0 0 0 rgba(217, 178, 122, 0); } }
+.spot-card { position: absolute; left: 30px; top: -14px; width: 250px; padding: 12px 14px; background: rgba(18, 22, 15, 0.92); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(10px); text-align: left; }
+.spot-card b { font-size: 13px; display: block; margin-bottom: 4px; }
+.spot-card p { font-size: 12px; line-height: 1.5; color: var(--muted); }
+.toast { position: absolute; left: 50%; top: 20px; transform: translateX(-50%); z-index: 70; background: var(--accent); color: var(--accent-ink); padding: 10px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); }
+@media (prefers-reduced-motion: reduce) { .spot-dot { animation: none; } }
+
 .embed .brand { display: none; }
 
 /* ---- Mobil ---- */

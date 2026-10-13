@@ -5,7 +5,7 @@ import { GroundedSkybox } from 'three/examples/jsm/objects/GroundedSkybox.js';
 import { useStore, type TimeOfDay } from '@/data/store';
 
 export const SUN: Record<TimeOfDay, { pos: [number, number, number]; color: string; intensity: number; env: number; bg: number; sky: string }> = {
-  day: { pos: [-3.4, 8.3, 8.0], color: '#fff0da', intensity: 2.7, env: 0.8, bg: 1, sky: '#9fc4e8' },
+  day: { pos: [-3.4, 8.3, 8.0], color: '#fff0da', intensity: 2.6, env: 1.2, bg: 1, sky: '#9fc4e8' },
   golden: { pos: [-9, 3.2, 5.5], color: '#ffb877', intensity: 3.6, env: 0.4, bg: 0.55, sky: '#c98a5e' },
   night: { pos: [5, 8, -4], color: '#8ba3ff', intensity: 0.35, env: 0.1, bg: 0.1, sky: '#050912' },
 };
@@ -69,7 +69,19 @@ const HDRI_SUN_AZ = 0.626;
 
 function Backdrop({ texture, rot, gain }: { texture: THREE.Texture; rot: number; gain: number }) {
   const sky = useMemo(() => {
+    // weiche Vergrößerung statt Pixelblöcke: lineare Filter + Mipmaps, leichte Unschärfe wie Tiefenunschärfe
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.generateMipmaps = true;
+    texture.needsUpdate = true;
+    if (import.meta.env.DEV) (window as unknown as { __hdri: unknown }).__hdri = texture;
     const m = new GroundedSkybox(texture, 2.1, 80);
+    (m.material as THREE.MeshBasicMaterial).onBeforeCompile = (sh) => {
+      sh.fragmentShader = sh.fragmentShader.replace(
+        '#include <map_fragment>',
+        'vec4 sampledDiffuseColor = texture2D( map, vMapUv, 4.0 ); diffuseColor *= sampledDiffuseColor;',
+      );
+    };
     m.rotation.y = -rot;
     m.position.y = -0.07 + 2.1;
     return m;
